@@ -1,0 +1,330 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<style>
+  body::-webkit-scrollbar{
+  display: none;
+}
+
+.signin-form {
+  border-radius: 10px;
+  box-shadow: 0px 0px 12px 0px rgba(67,67,67,0.69);
+  -webkit-box-shadow: 0px 0px 12px 0px rgba(67,67,67,0.69);
+  -moz-box-shadow: 0px 0px 12px 0px rgba(67,67,67,0.69);
+  display: flex;
+  flex-direction: column;
+  width: 60%;
+  margin: 3.5rem auto;
+}
+
+.signin-form h2 {
+  font-size: 30px;
+  padding: 2rem 4rem 0 4rem;
+  text-align: center;
+}
+
+.signin-form_form {
+  margin-bottom: 2rem;
+}
+
+.signin-form_barrier {
+  margin: 1rem 5rem 3rem 5rem;
+  padding: 2rem 3rem;
+  border: 1px solid #ced4dac1;
+  border-radius: 10px;
+}
+
+.signin-form_button {
+  margin: 0 auto 2rem auto;
+  display: flex;
+}
+
+.signin-form_button button {
+  width: 150px;
+  margin: 0 auto;
+}
+
+.signin-form p > label {
+  font-weight: 400;
+  margin-top: 8px auto 0 auto;
+}
+
+.desc-div {
+  min-height: 2.2rem;
+  background-color: #EFEFEF;
+  margin-block-start: 0.7rem !important;
+  margin-block-end: 0 !important;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.8rem;
+  color: #495057
+}
+
+.signin_input-div {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.form_field {
+  margin-bottom: 1rem;
+}
+
+
+
+</style>
+
+  <div class="signin-form">
+    <h2>Форма для подачи заявления на вступительные экзамены в университет РХТУ Ташкентского филиала</h2>
+
+    <form id="signin_form" role="form" method="POST" class="signin-form_form" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="signin-form_barrier" id="signin-form_barrier">
+        <div class="form_field">
+
+          <label for="signin-id_name">Имя:</label>
+          <div class="signin_input-div">
+            <input type="text" name="name" class="form-control" id="signin-id_name">
+          </div>
+
+        </div>
+
+        <div class="form_field">
+
+          <label for="signin-id_lastname">Фамилия:</label>
+          <div class="signin_input-div">
+            <input type="text" name="lastname" class="form-control" id="signin-id_lastname">
+          </div>
+
+        </div>
+
+        <div class="form_field">
+
+          <label for="signin-id_email">Email:</label>
+          <div class="signin_input-div">
+            <input type="text" name="email" class="form-control" id="signin-id_email">
+          </div>
+
+        </div>
+
+        <div class="form_field">
+
+          <label for="signin-id_username">Логин:</label>
+          <div class="signin_input-div">
+            <input type="text" name="username" class="form-control" id="signin-id_login">
+          </div>
+
+        </div>
+
+        <div class="form_field">
+
+          <label for="signin-id_phone_number">Номер телефона:</label>
+          <div class="signin_input-div">
+            <input type="text" name="phone_number" class="form-control" id="signin-id_phone_number">
+          </div>
+
+        </div>
+        <div class="form_field">
+
+          <label for="signin-id_password">Введите серию и номер паспорта:</label>
+          <div class="signin_input-div">
+            <input type="text" name="passport_series" class="form-control" id="signin-id_passport_series">
+          </div>
+
+        </div>
+
+      </div>
+      <div class="signin-form_button">
+        <button class="btn btn-secondary" id="form-button">Отправить</button>
+      </div>
+    </form>
+  </div>
+
+<script>
+  window.onload = () => {
+
+
+    message = undefined
+
+    emails = JSON.parse('{{emails|escapejs}}')
+
+    usernames = JSON.parse('{{usernames|escapejs}}')
+    passports =  JSON.parse('{{passports|escapejs}}')
+
+
+
+    login = document.getElementById('signin-id_login')
+    password = document.getElementById('signin-id_passport_series')
+
+
+  // ---------------------------------------------- FORM FUNCTIONALITIES ----------------------------------------------
+
+    // Add description messages to all fields
+    form = document.getElementById('signin-form_barrier')
+    
+    for (child of form.children) {
+      // Add red star to labels
+      let label = child.children[0]
+      if (label !== undefined) label.innerHTML += '<span class="red-star"> *</span>'
+      // label.innerHTML += '<span class="red-star">*<span>'
+
+    }
+
+    // Make data field type - data
+
+
+  }
+
+  // ---------------------------------------------- FORM VALIDATION ----------------------------------------------
+
+  // get country value to be able to check state
+
+  button = document.getElementById('form-button').onclick = (e) => {
+    e.preventDefault()
+
+    // save field names to get by id dynamically
+    fieldNames = [
+      'name', 
+      'lastname', 
+      'phone_number',
+      'email',
+      'login',
+      'passport_series'
+    ]
+
+    // create errors list to check if it is empty before submitting form
+
+
+    let secondPassword = document.getElementById('signin-id_password2')
+
+
+    let errorsList = []
+    let message = undefined
+
+    // iterate fields to validate
+    for (fieldName of fieldNames) {
+
+
+      field = document.getElementById(`signin-id_${fieldName}`)
+      
+      // remove red border class
+      field.classList.remove('is-invalid')
+
+      if (fieldName === 'name' || fieldName === 'lastname') message = checkName(field.value)
+      else if (fieldName === 'phone_number') message = checkNumber(field.value)
+      else if (fieldName === 'email') message = checkEmail(field.value, emails)
+      else if (fieldName === 'login') message = checkUsername(field.value, usernames)
+      else if (fieldName === 'passport_series') message = checkPassportSeries(field.value, passports)
+      else if (fieldName === 'phone_number') message = checkNumber(field.value)
+
+      // create error message p
+      let error = document.createElement('p')
+      error.setAttribute('class', 'invalid-feedback')
+      error.classList.add('error-message')
+      // Add identification class to prevent many error messages
+      error.classList.add(`error-message_${field.id}`)
+      error.innerText = message
+
+      // Prevent many error messages
+      let errors = document.getElementsByClassName(`error-message_${field.id}`)
+      for (i=0; i<errors.length; i++) {
+        errors[i].remove()
+      }
+      
+      // insert error message and get desc div back
+      if (message !== undefined) {
+        field.classList.remove('is-valid')
+        field.classList.add('is-invalid')
+        field.parentElement.appendChild(error)
+      } 
+      else {
+        field.classList.remove('is-invalid')
+        field.classList.add('is-valid')
+
+        // Prevent many error messages
+        for (i=0; i<errors.length; i++) {
+          errors[i].remove()
+        }
+      }
+
+
+      // save errors to error list
+      if (message !== undefined) {
+        errorsList.push(field)
+      }
+
+    }
+    // Submit form
+    if (errorsList.length === 0) {
+      document.getElementById('signin_form').submit()
+    }
+    else {
+      let x = errorsList[0].offsetLeft;
+      let y = errorsList[0].offsetTop - 50;
+      window.scrollTo(x, y)
+    }
+  }
+
+
+  // ---------------------------------------------- VALIDATORS ----------------------------------------------
+
+  function checkName(name) {
+    if (name === "") {
+      return "Это поле обязательное!";
+    }
+    if (/[а-яА-Я ]/.test(name) !== true) {
+        return "Введите имя правильно!";
+    }
+  }
+
+  function checkNumber(number) {
+    if (number === "") {
+      return "Это поле обязательное!";
+    }
+    if ((number[0] !== "+" && number.length !== 13) || !/^\d+$/.test(number.substring(1))) {
+      return "Укажите правильный номер!";
+    }
+  }
+
+  function checkEmail(email, emails) {
+    if (email === "") {
+      return "Это поле обязательное!";
+    }
+    if(!(email.match(/^[A-Za-z\._\-0-9]*[@][A-Za-z]*[\.][a-z]{2,4}$/))){
+      return 'Пожалуйста введите правильный email!'
+    }
+    if (emails.includes(email)) {
+      return 'Этот email уже занят!'
+    }
+  }
+
+  function checkUsername(username, usernames) {
+    if (username === "") {
+      return "Это поле обязательное!";
+    }
+    if(/[A-Za-z]/.test(username) !== true){
+      return 'Пожалуйста введите правильный логин!'
+    }
+    if (usernames.includes(username)) {
+      return 'Этот логин уже занят!'
+    }
+  }
+
+  function checkPassportSeries(passport_series, passports) {
+      if (passport_series === "") {
+        return "Это поле обязательное!";
+      }
+      if (!(/^\d+$/.test(passport_series.slice(2))) || !(/[A-Z]/.test(passport_series.slice(0, 2)))) {
+        return "Укажите правильную серию и номер паспорта!";
+      }
+      if (passports.includes(passport_series)) {
+      return 'Этот логин уже занят!'
+    }
+    }
+
+</script>
+
+{% endblock content %}

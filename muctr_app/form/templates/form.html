@@ -1,0 +1,539 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+  <h1>Application Form</h1>
+  <div class="application-form">
+    <h2>Форма для подачи заявления на вступительные экзамены в университет РХТУ Ташкентского филиала</h2>
+
+    <form id="form" role="form" action="{% url 'form' %}" method="POST" class="application-form_form" enctype="multipart/form-data">
+      <div class="application-form_barrier" id="application-form_barrier">
+      {% csrf_token %}
+      {{ form.as_p }}
+      </div>
+      <div class="application-form_button">
+        <button class="btn btn-secondary" id="form-button">Отправить</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    window.onload = () => {
+      emails = '{{emails|escapejs}}'
+      users = '{{users|escapejs}}'
+      console.log(users.includes("hi"))
+
+    // ---------------------------------------------- SELECTION ----------------------------------------------
+      // Change state options on country chosen
+
+      // List Uzb states
+      const uzStates = [
+        "Андижан",
+        "Бухара",
+        "Фергана",
+        "Жиззах",
+        "Республика Каракалпакстан",
+        "Кашкадаря",
+        "Харезм",
+        "Наманган",
+        "Наваи",
+        "Самарканд",
+        "Сирдаря",
+        "Сурхандаря",
+        "город Ташкент",
+        "Ташкентский регион",
+      ]
+
+      
+      // Get Counrties
+      let getCountry = document.getElementById('id_country')
+
+      // Get state
+      let getState = document.getElementById('id_state')
+
+      // Add change event
+      getCountry.addEventListener('change', function(e) {
+        let chosenCounrty = e.target.value
+
+        stateOptions = ''
+        
+        if (chosenCounrty !== 'Узбекистан') {
+          getState.innerHTML = '<option value="" selected> --------------- </option>'
+        }
+        else {
+          let uzStatesAsOption = []
+          for (i = -1; i < uzStates.length; i++) {
+            if (i === -1) uzStatesAsOption.push(`<option value selected">Выберите город</option>`)
+            uzStatesAsOption.push(`<option value="${uzStates[i]}"> ${uzStates[i]} </option>`)
+          }
+          getState.innerHTML = uzStatesAsOption.join('\n')
+        }
+      })
+
+      // Change state options on EDU LEVEL chosen
+      let masterFields = [
+        'Материаловедение и технологии материалов', 
+        'Наноматериалы'
+      ]
+
+      let bachelorFields = [
+        'Материаловедение и технологии материалов', 
+        'Химическая технология', 
+        'Техносферная безопасность', 
+        'Технология художественной обработки материалов',
+      ]
+
+      // Get Level
+      let getLevel = document.getElementById('id_edu_level')
+
+      // Get state
+      let getFields = document.getElementById('id_edu_field')
+
+      // Add change event
+      getLevel.addEventListener('change', function(e) {
+        let chosenLevel = e.target.value
+        let fields = []
+
+        // Chose array of fields
+        if (chosenLevel === 'Магистратура') fieldArray = masterFields
+        else if (chosenLevel === 'Бакалавриат') fieldArray = bachelorFields
+
+        // Add fields to options
+        for (i = -1; i < fieldArray.length; i++) {
+          if (i === -1) {
+            fields.push(`<option value="" selected>Выберите направление обучения</option>`)
+          }
+          else fields.push(`<option value="${fieldArray[i]}"> ${fieldArray[i]} </option>`)
+        } 
+        getFields.innerHTML = fields.join('\n')
+      })
+
+
+    // ---------------------------------------------- FORM FUNCTIONALITIES ----------------------------------------------
+
+      
+      // Hide django error messages
+      let errors = document.getElementsByClassName('errorlist')
+      for (error of errors) {
+        error.style.display = 'none'
+      }
+
+      // Add description messages to all fields
+      form = document.getElementById('application-form_barrier')
+      
+      for (child of form.children) {
+        // Add red star to labels
+        let label = child.children[0]
+        if (label !== undefined) label.innerHTML += '<span class="red-star"> *</span>'
+        // label.innerHTML += '<span class="red-star">*<span>'
+
+        if (child.nodeName === "P") {
+          let descDiv = document.createElement('p')
+          descDiv.setAttribute('class', 'desc-div')
+          descDiv.setAttribute('id', `desc-${child.children[1].id}`)
+          descDiv.innerText = document.getElementById(`${child.children[1].id}`).getAttribute('data-text')
+
+          let inputDiv = document.createElement('div')
+          inputDiv.appendChild(document.getElementById(`${child.children[1].id}`))
+          child.appendChild(inputDiv)
+
+          if (inputDiv.children[0].nodeName === "INPUT" & inputDiv.children[0].getAttribute('type') !== "file") {
+            inputDiv.appendChild(descDiv)
+            inputDiv.setAttribute('class', 'input-div')
+          }
+          else if (inputDiv.children[0].getAttribute('type') === "file") {
+            input = inputDiv.children[0]
+
+            let labelDiv = document.createElement('div')
+            labelDiv.setAttribute('class', 'label-div')
+
+            let label = document.createElement('label')
+            label.setAttribute('for', input.id)
+            label.setAttribute('class', 'file-label')
+            label.innerText = "Выберите файл"
+
+            let span = document.createElement('p')
+            span.setAttribute('class', 'label-span')
+            span.innerText = "Файл не выбран"
+
+            labelDiv.appendChild(label)
+            labelDiv.appendChild(span)
+
+            inputDiv.appendChild(labelDiv)
+            inputDiv.appendChild(descDiv)
+          
+            inputDiv.setAttribute('class', 'input-div')
+          }
+          else {
+            inputDiv.setAttribute('class', 'select-div')
+          }
+        }
+      }
+
+      // Make data field type - data
+      document.getElementById('id_date_of_birth').setAttribute('type', 'date')
+
+      files = document.getElementsByClassName('file-field')
+
+      for (i = 0; i < files.length; i++) {
+        files[i].parentElement.children[1].children[1].setAttribute('class', `${files[i].id}`)
+
+        files[i].addEventListener('change', function(e) {
+          input = document.getElementById(`${e.target.id}`)
+          if (input.files[0].name.length > 0) {
+            input.parentElement.children[1].children[1].innerText = input.files[0].name
+          }
+          else if (input.files[0].name === '') {
+            input.parentElement.children[1].children[1].innerText = "Файл не выбран"
+          }
+
+        })
+      }
+    }
+
+    // ---------------------------------------------- FORM VALIDATION ----------------------------------------------
+
+    // get country value to be able to check state
+    let country = document.getElementById('id_country')
+
+    button = document.getElementById('form-button').onclick = (e) => {
+      e.preventDefault()
+
+      // save field names to get by id dynamically
+      fieldNames = [
+        'name', 
+        'lastname', 
+        'middlename', 
+        'username',
+        'date_of_birth', 
+        'country', 
+        'state', 
+        'zip_code', 
+        'address', 
+        'gender', 
+        'email', 
+        'phone',
+        'phone_2',
+        'edu_type',
+        'edu_level',
+        'edu_field',
+        'passport_series',
+        'photo', 
+        'passport', 
+        'passport_translation',
+        'school_diploma',
+        'school_diploma_translation',
+        'info_check_agreement',
+        'entrance_agreement'
+      ]
+
+      // create errors list to check if it is empty before submitting form
+      let errorsList = []
+
+      let message = undefined
+
+      // iterate fields to validate
+      for (fieldName of fieldNames) {
+
+
+        field = document.getElementById(`id_${fieldName}`)
+        
+        // remove red border class
+        field.classList.remove('is-invalid')
+
+        if (fieldName === 'name' || fieldName === 'lastname' || fieldName === 'middlename') message = checkName(field.value)
+        else if (fieldName === 'username') message = checkUsername(field.value, users)
+        else if (fieldName === 'date_of_birth') message = checkDate(field.value)
+        else if (fieldName === 'country' || fieldName === 'address' || fieldName === 'gender' || fieldName === 'edu_type' || fieldName === 'edu_level' || fieldName === 'edu_field') {
+          message = checkBlank(field.value)
+        }
+        else if (fieldName === 'state') {
+          if (country.value === 'Узбекистан') field.value = ''
+          else message = checkState(country.value, field.value)
+        }
+        else if (fieldName === 'zip_code') message = checkZipCode(field.value)
+        else if (fieldName === 'email') {
+
+          message = checkEmail(field.value, emails)
+        }
+        else if (fieldName === 'phone') message = checkNumber(field.value)
+        else if (fieldName === 'phone_2') message = checkNumber(field.value)
+        else if (fieldName === 'passport_series') message = checkPassportSeries(field.value)
+        else if (fieldName === 'photo') message = checkPhoto(field)
+
+        if (field.getAttribute('type') === 'file') message = checkFile(field)
+
+
+
+
+
+        // add error message to form
+        // for select elements
+        if (field.nodeName === 'SELECT') {
+          let error = document.createElement('p')
+          error.setAttribute('class', 'invalid-feedback')
+          error.classList.add('error-message')
+          // Add identification class to prevent many error messages
+          error.classList.add(`error-message_${field.id}`)
+          error.innerText = message
+
+          let errors = document.getElementsByClassName(`error-message_${field.id}`)
+          for (i=0; i<errors.length; i++) {
+            errors[i].remove()
+          }
+          if (message !== undefined) {
+            field.parentElement.appendChild(error)
+          }
+
+        }
+        else if (field.getAttribute('type') === 'file') {
+          let error = document.getElementsByClassName(`${field.id}`)[0]
+          error.classList.remove('invalid-feedback')
+          if (message !== undefined) {
+            error.innerText = message
+            error.classList.add('invalid-feedback')
+          }
+        } 
+        else {
+          // remove desc div to insert error message between desc div and input field
+          desc = document.getElementById(`desc-${field.id}`)
+          if (desc !== undefined) desc.remove()
+          
+          // create error message p
+          let error = document.createElement('p')
+          error.setAttribute('class', 'invalid-feedback')
+          error.classList.add('error-message')
+          // Add identification class to prevent many error messages
+          error.classList.add(`error-message_${field.id}`)
+          error.innerText = message
+
+          // Prevent many error messages
+          let errors = document.getElementsByClassName(`error-message_${field.id}`)
+          for (i=0; i<errors.length; i++) {
+            errors[i].remove()
+          }
+          
+          // insert error message and get desc div back
+          if (message !== undefined) {
+            field.classList.remove('is-valid')
+            field.classList.add('is-invalid')
+            field.parentElement.appendChild(error)
+          } 
+          else {
+            field.classList.remove('is-invalid')
+            field.classList.add('is-valid')
+
+            // Prevent many error messages
+            for (i=0; i<errors.length; i++) {
+              errors[i].remove()
+            }
+          }
+
+          if (desc !== undefined) field.parentElement.appendChild(desc)
+        }
+        // save errors to error list
+        if (message !== undefined) errorsList.push(field)
+      }
+
+
+      // Submit form
+      if (errorsList.length === 0) {
+        document.getElementById('form').submit()
+      }
+      else {
+        let x = errorsList[0].offsetLeft;
+        let y = errorsList[0].offsetTop - 50;
+        window.scrollTo(x, y)
+      }
+
+    }
+
+    // ---------------------------------------------- VALIDATORS ----------------------------------------------
+
+    // def check_blank(field):
+    //     if field == "":
+    //         print(data[0].email)
+    //         raise ValidationError("Это поле обязательное!")
+        
+    function checkBlank(field) {
+      if (field === "") {
+        return "Это поле обязательное!";
+      }
+    }
+
+    // def check_blank_file(field):
+    //     if field == None:
+    //         print(data[0].email)
+    //         raise ValidationError("Это поле обязательное!")
+
+    // function checkBlankFile(field) {
+    //   if (field === null) {
+    //     return "Это поле обязательное!";
+    //   }
+    // }
+
+    // def check_name(name):
+    //     for char in name:
+    //         if  not (("А" <= char and char <= "Я") or ("а" <= char and char <= "я") or (char == " ") or (char == "ё") or (char == "Ë")):
+    //             raise ValidationError("Введите имя правильно!")
+    //     return name
+
+    function checkName(name) {
+      if (name === "") {
+        return "Это поле обязательное!";
+      }
+      if (/[а-яА-Я ]/.test(name) !== true) {
+          return "Введите имя правильно!";
+      }
+    }
+
+    function checkDate(date) {
+      if (date === "") {
+        return "Это поле обязательное!";
+      }
+      if (date.length !== 10) {
+        return "Укажите правильную дату!"
+      }
+      if (Number(date.slice(0, 4)) < 1970 && Number(date.slice(0, 4)) > 2007) {
+        return "Укажите правильный год!"
+      }
+    }
+
+    // def check_number(number):
+    //     if number[0] != "+" or len(number) != 13 or not(number[1:-1].isnumeric()):
+    //         raise ValidationError("Укажите правильный номер!")
+    //     return number
+
+    function checkNumber(number) {
+      if (number === "") {
+        return "Это поле обязательное!";
+      }
+      if (number[0] !== "+" || (country.value === 'Узбекистан' && number.length !== 13) || !/^\d+$/.test(number.substring(1))) {
+        return "Укажите правильный номер!";
+      }
+    }
+
+    // def check_country(country):
+    //     if country == '': 
+    //         raise ValidationError("Укажите страну!")
+    //     return country
+
+    // def check_state(country, state):
+    //     if country != 'UZBEKISTAN': state = ''
+    //     if country == 'UZBEKISTAN' and state == '':
+    //         raise ValidationError("Укажите город!")
+    //     return state
+
+    function checkState(country, state) {
+      if (country === 'Узбекистан' && state === '') {
+        return "Это поле обязательное!";
+      }
+    }
+
+    function checkUsername(username, usernames) {
+    if (username === "") {
+      return "Это поле обязательное!";
+    }
+    if(/[A-Za-z]/.test(username) !== true){
+      return 'Пожалуйста введите правильный логин!'
+    }
+    if (usernames.includes(username)) {
+      return 'Этот логин уже занят!'
+    }
+  }
+
+    // def check_zip_code(zip_code):
+    //     if not zip_code.isnumeric() and len(zip_code) != 6: raise ValidationError("Укажите правильный почтовый индекс!")
+    //     return zip_code
+
+    function checkZipCode(zip_code) {
+      if (zip_code === "") {
+        return "Это поле обязательное!";
+      }
+      if (!/^\d+$/.test(zip_code) || zip_code.length !== 6) return "Укажите правильный почтовый индекс!";
+    }
+
+    // def check_gender(gender):
+    //     if not gender:
+    //         raise ValidationError("Укажите гендер!")
+    //     return gender
+
+    // def check_email(email):
+    //     for field in data:
+
+    function checkEmail(email, emails) {
+      if(!(email.match(/^[A-Za-z\._\-0-9]*[@][A-Za-z]*[\.][a-z]{2,4}$/))){
+        return 'Пожалуйста введите правильный email!'
+      }
+      if (emails.includes(email)) {
+        return 'Этот email уже занят!'
+      }
+    }
+
+    //     if not gender:
+    //         raise ValidationError("Укажите гендер!")
+    //     return gender
+
+    // def check_phone(phone):
+    //     if len(phone) != 13:
+    //         raise ValidationError("Укажите правильный номер!")
+    //     return phone
+            
+    // def check_passport_series(passport_series):
+    //     if not passport_series[2::].isnumeric() or ('A' > passport_series[0] and 'Z' < passport_series[0]) or ('A' > passport_series[1] and 'Z' < passport_series[1]):
+    //         raise ValidationError("Укажите правильную серию и номер паспорта!")
+    //     return passport_series
+
+    function checkPassportSeries(passport_series) {
+      if (passport_series === "") {
+        return "Это поле обязательное!";
+      }
+      if (!(/^\d+$/.test(passport_series.slice(2))) || !(/[A-Z]/.test(passport_series.slice(0, 2)))) {
+        return "Укажите правильную серию и номер паспорта!";
+      }
+    }
+        
+    // def check_file(file):
+    //     if not file: return file
+    //     if file.__size > 5242880:
+    //         raise ValidationError("Файл слишком большой! Выберите другой файл!")
+    //     if not file.name.endswith(('.jpg', '.png', '.jpeg', 'pdf')):
+    //         raise ValidationError("Файл должен быть формата jpg, png или pdf!")
+    //     return file
+
+    function checkFile(file) {
+      if (file.files.length === 0) {
+        return "Это поле обязательное!";
+      }
+      if (file.files[0].size > 5242880) {
+        return "Файл слишком большой! Выберите другой файл!";
+      }
+      if (!file.files[0].name.endsWith(".jpg") && !file.files[0].name.endsWith(".png") && !file.files[0].name.endsWith(".jpeg") && !file.files[0].name.endsWith(".pdf")) {
+        return "Файл должен быть формата jpg, png, jpeg или pdf!";
+      }
+    }
+
+    // def check_photo(file):
+    //     if not file: return file
+    //     if file.__size > 5242880:
+    //         raise ValidationError("Файл слишком большой! Выберите другой файл!")
+    //     if not file.name.endswith(('.jpg', '.png', '.jpeg')):
+    //         raise ValidationError("Файл должен быть формата jpg, png или jpeg!")
+    //     return file
+
+    function checkPhoto(file) {
+      if (file.files.length === 0) {
+        return "Это поле обязательное!";
+      }
+      if (file.files[0].size > 5242880) {
+        return "Файл слишком большой! Выберите другой файл!";
+      }
+      if (!file.files[0].name.endsWith(".jpg") && !file.files[0].name.endsWith(".png") && !file.files[0].name.endsWith(".jpeg")) {
+        return "Файл должен быть формата jpg, png или jpeg!";
+      }
+    }
+    
+  </script>
+
+{% endblock content %}
