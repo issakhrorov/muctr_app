@@ -1,14 +1,21 @@
 {% extends 'base.html' %}
 
+{% block title %} Форма регистрации {% endblock %}
 
 {% block content %}
+{% load static %}
 
 <style>
   body::-webkit-scrollbar{
   display: none;
 }
 
+body {
+  background-image: url'({% static "images/1.jpg" %})';
+}
+
 .signin-form {
+
   border-radius: 10px;
   box-shadow: 0px 0px 12px 0px rgba(67,67,67,0.69);
   -webkit-box-shadow: 0px 0px 12px 0px rgba(67,67,67,0.69);
@@ -71,6 +78,42 @@
 .form_field {
   margin-bottom: 1rem;
 }
+
+
+
+
+@media only screen and (max-width: 993px) {
+
+.signin-form h2 {
+  font-size: 27px;
+  padding: 2rem 1rem 0 1rem;
+}
+
+.signin-form {
+  width: 80%;
+}
+
+
+}
+
+
+@media only screen and (max-width: 750px) {
+  .signin-form h2 {
+  font-size: 1.2rem;
+}
+.signin-form {
+  width: 100%;
+  border-radius: 0;
+  font-size: 0.8rem;
+}
+.signin-form_barrier {
+  margin: 1rem 2rem 3rem 2rem
+}
+}
+
+
+
+
 
 
 
@@ -144,7 +187,15 @@
   </div>
 
 <script>
+
+  
   window.onload = () => {
+
+
+    login = document.getElementById('signin-id_login')
+    email = document.getElementById('signin-id_email')
+    passport = document.getElementById('signin-id_passport_series')
+
 
 
     message = undefined
@@ -153,6 +204,28 @@
 
     usernames = JSON.parse('{{usernames|escapejs}}')
     passports =  JSON.parse('{{passports|escapejs}}')
+
+    login.onchange = function(){
+      if (login !== '') {
+        usernames.push(login.value)
+      }
+    }
+
+    email.onchange = function(){
+      if (email !== '') {
+        emails.push(email.value)
+      }
+    }
+    passport.onchange = function(){
+      if (passport !== '') {
+        passports.push(passport.value)
+      }
+    }
+
+    console.log(emails)
+
+
+    console.log(usernames)
 
 
 
@@ -209,15 +282,18 @@
 
 
       field = document.getElementById(`signin-id_${fieldName}`)
+
+
+      console.log(emails)
       
       // remove red border class
       field.classList.remove('is-invalid')
 
       if (fieldName === 'name' || fieldName === 'lastname') message = checkName(field.value)
       else if (fieldName === 'phone_number') message = checkNumber(field.value)
-      else if (fieldName === 'email') message = checkEmail(field.value, emails)
-      else if (fieldName === 'login') message = checkUsername(field.value, usernames)
-      else if (fieldName === 'passport_series') message = checkPassportSeries(field.value, passports)
+      else if (fieldName === 'email') message = checkEmail(field.value, emails, email)
+      else if (fieldName === 'login') message = checkUsername(field.value, usernames, login)
+      else if (fieldName === 'passport_series') message = checkPassportSeries(field.value, passports, passport)
       else if (fieldName === 'phone_number') message = checkNumber(field.value)
 
       // create error message p
@@ -259,7 +335,10 @@
     }
     // Submit form
     if (errorsList.length === 0) {
+
+
       document.getElementById('signin_form').submit()
+
     }
     else {
       let x = errorsList[0].offsetLeft;
@@ -276,7 +355,7 @@
       return "Это поле обязательное!";
     }
     if (/[а-яА-Я ]/.test(name) !== true) {
-        return "Введите имя правильно!";
+        return "Введите имя правильно! (Поле не должно содержать латынские буквы)";
     }
   }
 
@@ -289,39 +368,39 @@
     }
   }
 
-  function checkEmail(email, emails) {
+  function checkEmail(email, emails, curr_email) {
     if (email === "") {
       return "Это поле обязательное!";
     }
     if(!(email.match(/^[A-Za-z\._\-0-9]*[@][A-Za-z]*[\.][a-z]{2,4}$/))){
       return 'Пожалуйста введите правильный email!'
     }
-    if (emails.includes(email)) {
+    if (emails.includes(email) && email === curr_email) {
       return 'Этот email уже занят!'
     }
   }
 
-  function checkUsername(username, usernames) {
+  function checkUsername(username, usernames, curr_username) {
     if (username === "") {
       return "Это поле обязательное!";
     }
     if(/[A-Za-z]/.test(username) !== true){
       return 'Пожалуйста введите правильный логин!'
     }
-    if (usernames.includes(username)) {
+    if (usernames.includes(username) && username === curr_username) {
       return 'Этот логин уже занят!'
     }
   }
 
-  function checkPassportSeries(passport_series, passports) {
+  function checkPassportSeries(passport_series, passports, curr_passport) {
       if (passport_series === "") {
         return "Это поле обязательное!";
       }
       if (!(/^\d+$/.test(passport_series.slice(2))) || !(/[A-Z]/.test(passport_series.slice(0, 2)))) {
         return "Укажите правильную серию и номер паспорта!";
       }
-      if (passports.includes(passport_series)) {
-      return 'Этот логин уже занят!'
+      if (passports.includes(passport_series) && passport_series === curr_passport) {
+      return 'Этот паспорт уже зарегистрирован!'
     }
     }
 

@@ -174,25 +174,40 @@ def signup(request):
         phone_number = request.POST['phone_number']
         passport_series = request.POST['passport_series']
 
-        user = User.objects.create(
-           username = username,
+        exist_user1 = Student.objects.filter(username=username)
+        exist_user2 = Student.objects.filter(email=email)
+        exist_user3 = Student.objects.filter(passport_series=passport_series)
+        print(exist_user1)
+        print(exist_user2)
+        print(exist_user3)
 
-           email = email, 
-           password = passport_series
-        )
-        user.save()
+        if exist_user1.exists() or exist_user2.exists() or exist_user3.exists():
+           print("hi")
+           if exist_user1 == exist_user2 == exist_user3:
+              return redirect('signin')
+           else:
+              return redirect('signup')
 
-        student = Student.objects.create(
-            name=name, 
-            lastname=lastname,
-            username=username,
-            email=email,
-            phone=phone_number,
-            passport_series=passport_series
-        )
-        student.save()
+        else:
+            user = User.objects.create(
+                username = username,
 
-        return redirect('signin')
+                email = email, 
+                password = passport_series
+            )
+            user.save()
+
+            student = Student.objects.create(
+                name=name, 
+                lastname=lastname,
+                username=username,
+                email=email,
+                phone=phone_number,
+                passport_series=passport_series
+            )
+            student.save()
+
+            return redirect('signin')
     else:
         context = {}
         usernames = Student.objects.values_list('username')
