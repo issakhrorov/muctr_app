@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} Вход в персональный кабинет {% endblock %}
+<title>{% block title %} Вход в персональный кабинет {% endblock %}</title>
 
 {% block content %}
 
@@ -274,10 +274,6 @@ a:hover {
   }
 
   function checkPassword(password, passwords, login, logins) {
-    console.log(passwords.indexOf(password))
-    console.log(logins.indexOf(login))
-
-
     if (password === "") {
       return "Это поле обязательное!";
     }

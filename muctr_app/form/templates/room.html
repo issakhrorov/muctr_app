@@ -2,7 +2,7 @@
 
 {% block content %}
 
-{% block title %} Персональный кабинет {% endblock %}
+<title>{% block title %} Персональный кабинет {% endblock %}</title>
 
   <div class="application-form">
     <h2>Форма для подачи заявления на вступительные экзамены в университет РХТУ Ташкентского филиала</h2>
@@ -41,19 +41,19 @@
 
       console.log(nameDesc)
 
-      if (nameDesc !== '') div.innerHTML += `<p class="field-desc">Имя: ${nameDesc }</p>`
-      if (lastnameDesc !== '') div.innerHTML += `<p class="field-desc">Фамилия: ${lastnameDesc }</p>`
-      if (middlenameDesc !== '') div.innerHTML += `<p class="field-desc">Отчество: ${middlenameDesc }</p>`
-      if (addressDesc !== '') div.innerHTML += `<p class="field-desc">Адрес: ${addressDesc }</p>`
-      if (citizenshipDesc !== '') div.innerHTML += `<p class="field-desc">Гражданство: ${citizenshipDesc }</p>`
-      if (photoDesc !== '') div.innerHTML += `<p class="field-desc">Фотография: ${photoDesc }</p>`
-      if (passportDesc !== '') div.innerHTML += `<p class="field-desc">Паспорт: ${passportDesc }</p>`
-      if (passport_seriesDesc !== '') div.innerHTML += `<p class="field-desc">Серия и номер паспорта: ${passport_seriesDesc }</p>`
-      if (passport_translationDesc !== '') div.innerHTML += `<p class="field-desc">Перевод паспорта: ${passport_translationDesc }</p>`
-      if (school_diplomaDesc !== '') div.innerHTML += `<p class="field-desc">Аттестат: ${school_diplomaDesc }</p>`
-      if (school_diploma_translationDesc !== '') div.innerHTML += `< class="field-desc"p>Перевод аттестата: ${school_diploma_translationDesc }</>`
-      if (info_check_agreementDesc !== '') div.innerHTML += `<p class="field-desc">Заявление о согласии на обработку персональных данных: ${info_check_agreementDesc }</p>`
-      if (entrance_agreementDesc !== '') div.innerHTML += `<p class="field-desc">Заявление о зачислении:: ${entrance_agreementDesc }</p>`
+      if (nameDesc !== null) div.innerHTML += `<p class="field-desc">Имя: ${nameDesc }</p>`
+      if (lastnameDesc !== null) div.innerHTML += `<p class="field-desc">Фамилия: ${lastnameDesc }</p>`
+      if (middlenameDesc !== null) div.innerHTML += `<p class="field-desc">Отчество: ${middlenameDesc }</p>`
+      if (addressDesc !== null) div.innerHTML += `<p class="field-desc">Адрес: ${addressDesc }</p>`
+      if (citizenshipDesc !== null) div.innerHTML += `<p class="field-desc">Гражданство: ${citizenshipDesc }</p>`
+      if (photoDesc !== null) div.innerHTML += `<p class="field-desc">Фотография: ${photoDesc }</p>`
+      if (passportDesc !== null) div.innerHTML += `<p class="field-desc">Паспорт: ${passportDesc }</p>`
+      if (passport_seriesDesc !== null) div.innerHTML += `<p class="field-desc">Серия и номер паспорта: ${passport_seriesDesc }</p>`
+      if (passport_translationDesc !== null) div.innerHTML += `<p class="field-desc">Перевод паспорта: ${passport_translationDesc }</p>`
+      if (school_diplomaDesc !== null) div.innerHTML += `<p class="field-desc">Аттестат: ${school_diplomaDesc }</p>`
+      if (school_diploma_translationDesc !== null) div.innerHTML += `<p class="field-desc"p>Перевод аттестата: ${school_diploma_translationDesc }</p>`
+      if (info_check_agreementDesc !== null) div.innerHTML += `<p class="field-desc">Заявление о согласии на обработку персональных данных: ${info_check_agreementDesc }</p>`
+      if (entrance_agreementDesc !== null) div.innerHTML += `<p class="field-desc">Заявление о зачислении:: ${entrance_agreementDesc }</p>`
 
       if (div.innerHTML === '') div.setAttribute('style', 'display: none')
       else div.setAttribute('style', 'display: block')

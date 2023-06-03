@@ -46,30 +46,30 @@ def export_to_excel(request):
 
 
 
-class FormView(CreateView):
-    model = Student
-    form_class = StudentForm
-    template_name = 'form.html'
-    success_url = 'signin'
+# class FormView(CreateView):
+#     model = Student
+#     form_class = StudentForm
+#     template_name = 'form.html'
+#     success_url = 'signin'
 
-    def get_success_url(self) -> str:
-        user = User.objects.create(
-           username = self.object.username,
-           email = self.object.email, 
-           password = self.object.passport_series
-        )
-        user.save()
-        return 'signin'
+#     def get_success_url(self) -> str:
+#         user = User.objects.create(
+#            username = self.object.username,
+#            email = self.object.email, 
+#            password = self.object.passport_series
+#         )
+#         user.save()
+#         return 'signin'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        emails = Student.objects.values_list('email')
-        users = User.objects.values_list('username')
-        email_list = [email[0] for email in emails]
-        user_list = [user[0] for user in users] 
-        context['emails'] = json.dumps(email_list)
-        context['users'] = json.dumps(user_list)
-        return context
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         emails = Student.objects.values_list('email')
+#         users = User.objects.values_list('username')
+#         email_list = [email[0] for email in emails]
+#         user_list = [user[0] for user in users] 
+#         context['emails'] = json.dumps(email_list)
+#         context['users'] = json.dumps(user_list)
+#         return context
 
 class RoomView(UpdateView):
     model = Student
@@ -184,6 +184,10 @@ def signup(request):
         if exist_user1.exists() or exist_user2.exists() or exist_user3.exists():
            print("hi")
            if exist_user1 == exist_user2 == exist_user3:
+              print(exist_user1)
+              print(exist_user2)
+              print(exist_user3)
+
               return redirect('signin')
            else:
               return redirect('signup')
